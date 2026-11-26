@@ -1,6 +1,6 @@
 # PROTOCOLO DE ANÁLISE CRÍTICA INTEGRAL DE TESES E DISSERTAÇÕES EM HISTÓRIA
 
-**Versão 1.1 (revisada após auditoria da v1.0 de 17/11/2026)**
+**Versão 1.3 (legenda de cores obrigatória; v1.1 revisada após auditoria da v1.0 de 17/11/2026)**
 
 > Para outras áreas, mantenha as seções 1 a 6 e 8 a 17 e substitua os subitens específicos da seção 7 pelos procedimentos próprios da área.
 
@@ -291,6 +291,7 @@ Além do parecer, entregue a **tese marcada**: uma cópia do documento original 
 6. Anexar um **índice de marcas** (tabela: identificador, cor, página, trecho, prioridade, seção do parecer) e um **resumo por cor** (contagem).
 7. A Fase F deve conferir que cada trecho destacado existe literalmente no original e está na página indicada.
 8. Se o arquivo for digitalização sem camada de texto, declarar que a marcação automática não é possível ou depende de OCR validado, e entregar apenas o índice de marcas.
+9. **Legenda das cores obrigatória em todas as entregas.** O significado de cada cor deve estar escrito nos próprios documentos entregues, e não só neste protocolo: (a) no cabeçalho do parecer, em tabela com cor, significado e prioridade; (b) na cópia anotada, em página de legenda acrescentada **ao final** do arquivo, para não alterar a paginação citada no parecer; (c) no índice de marcas, em coluna "Significado da cor". Sem a legenda, o leitor do parecer não consegue interpretar as marcas sem consultar o protocolo.
 
 ---
 
@@ -308,3 +309,4 @@ Além do parecer, entregue a **tese marcada**: uma cópia do documento original 
 10. Removida a indicação "versão reconstruída" como título: origem não documentada; mantido apenas o histórico de versões.
 
 3. (v1.2) Skill renomeada **Mariana**. Script `anotar_e_verificar.py` reescrito com `argparse`, `--so-verificar`, checagem de ids duplicados, de campos obrigatórios, de página fora do PDF e de página sem camada de texto. Testado em tese de 175 páginas (132 marcas, 132 verificadas). SKILL.md: parâmetros assumidos por padrão declarados no topo, versão reduzida permitida com declaração de limites, regra de subcadeia do snippet, índice completo de marcas na entrega e cabeçalho do parecer.
+4. (v1.3) **Legenda de cores obrigatória nas entregas** (contribuição de Laupa Carla Pimentel Gomes da Silva, PRODEMA/UFS, 26/11/2026). Na aplicação a um projeto de tese, verificou-se que o parecer, a cópia anotada e o índice informavam a cor de cada marca, mas nenhum deles dizia o que a cor significa: o leitor precisava recorrer ao protocolo. Acrescentada a regra 9 da seção 18; SKILL.md (cabeçalho e entrega) e script (`--legenda`) atualizados.

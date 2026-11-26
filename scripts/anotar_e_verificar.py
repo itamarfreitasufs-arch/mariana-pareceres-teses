@@ -2,7 +2,7 @@
 """Verifica e anota uma tese em PDF a partir de um registro de achados.
 
 Uso:
-  python3 anotar_e_verificar.py tese.pdf registro.json saida.pdf [--offset N] [--so-verificar]
+  python3 anotar_e_verificar.py tese.pdf registro.json saida.pdf [--offset N] [--so-verificar] [--legenda]
 
 registro.json = lista de objetos com:
   id          "M-001"
@@ -16,7 +16,9 @@ registro.json = lista de objetos com:
 
 Regras: se algum snippet ou excerto nao for achado na pagina, o script FALHA (exit 1)
 e nao grava o PDF. --offset = (numero impresso) - (numero do PDF); padrao 0.
---so-verificar roda a checagem sem gravar PDF. Requer: pip install pdfplumber pypdf
+--so-verificar roda a checagem sem gravar PDF. --legenda acrescenta, AO FINAL do PDF
+(sem alterar a paginacao citada), uma pagina com o significado de cada cor (protocolo, secao 18,
+regra 9). Requer: pip install pdfplumber pypdf (e reportlab para --legenda)
 """
 import argparse, json, re, sys
 import pdfplumber
@@ -27,6 +29,56 @@ from pypdf.generic import ArrayObject, FloatObject, NameObject, TextStringObject
 CORES = {'verde': '90EE90', 'amarelo': 'FFEB3B', 'vermelho': 'FF8A80',
          'laranja': 'FFB74D', 'azul': '81D4FA', 'roxo': 'CE93D8'}
 CAMPOS = ('id', 'pdf', 'snippet', 'excerto', 'cor', 'pri')
+LEGENDA = [  # protocolo, secao 18
+    ('verde', 'Verde', 'Mérito: argumento bem demonstrado, fonte bem tratada, contribuição original', 'Ponto forte'),
+    ('roxo', 'Roxo', 'Formulação-chave do autor usada na reconstrução (pergunta, hipótese, tese)', 'Chave'),
+    ('vermelho', 'Vermelho', 'Problema de mérito: contradição, extrapolação, falha de método', 'P1'),
+    ('laranja', 'Laranja', 'Consistência analítica: conceito ambíguo, repetição, articulação', 'P2'),
+    ('amarelo', 'Amarelo', 'Afirmação sem sustentação suficiente, ou inferência frágil', 'P2'),
+    ('azul', 'Azul', 'Revisão documental e editorial: referência, data, remissão', 'P3'),
+]
+
+
+def pagina_legenda(contagem):
+    """Gera, em memoria, a pagina de legenda das cores (com a contagem de marcas por cor)."""
+    import io, glob
+    from reportlab.lib.pagesizes import A4
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.colors import HexColor
+    from reportlab.lib.utils import simpleSplit
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    reg, neg = 'Helvetica', 'Helvetica-Bold'
+    fr = glob.glob('/usr/share/fonts/**/DejaVuSans.ttf', recursive=True)
+    fb = glob.glob('/usr/share/fonts/**/DejaVuSans-Bold.ttf', recursive=True)
+    if fr and fb:  # fonte com acentos garantidos
+        pdfmetrics.registerFont(TTFont('DV', fr[0])); pdfmetrics.registerFont(TTFont('DVB', fb[0]))
+        reg, neg = 'DV', 'DVB'
+    buf = io.BytesIO()
+    c = canvas.Canvas(buf, pagesize=A4); W, H = A4; y = H - 80
+    c.setFont(neg, 14); c.drawString(60, y, 'Legenda das marcas (protocolo Mariana, seção 18)'); y -= 22
+    c.setFont(reg, 9.5)
+    for t in ('Página acrescentada ao final da cópia anotada; não altera a paginação citada no parecer.',
+              'Cada destaque traz um comentário com código (M-xxx), prioridade, diagnóstico e ação sugerida.'):
+        c.drawString(60, y, t); y -= 14
+    y -= 16
+    for chave, nome, sig, pri in LEGENDA:
+        linhas = simpleSplit(sig, reg, 10, 290); h = max(28, 14 * len(linhas) + 10)
+        c.setFillColor(HexColor('#' + CORES[chave])); c.rect(60, y - h + 8, 90, h - 4, stroke=0, fill=1)
+        c.setFillColor(HexColor('#000000')); c.setFont(neg, 10.5); c.drawString(66, y - 10, nome)
+        c.setFont(reg, 10)
+        for i, l in enumerate(linhas):
+            c.drawString(160, y - 10 - 14 * i, l)
+        c.setFont(neg, 10); c.drawString(460, y - 10, pri)
+        c.setFont(reg, 10); c.drawRightString(535, y - 10, str(contagem.get(chave, 0)))
+        y -= h + 4
+    y -= 12; c.setFont(reg, 9.5)
+    for t in simpleSplit('Ordem de leitura: vermelho (condições indispensáveis), laranja e amarelo '
+                         '(recomendações desejáveis), azul (correções antes do depósito). Verde e roxo '
+                         'indicam o que preservar. Última coluna: número de marcas por cor.', reg, 9.5, 475):
+        c.drawString(60, y, t); y -= 13
+    c.save(); buf.seek(0)
+    return PdfReader(buf)
 
 
 def norm(s):
@@ -47,6 +99,8 @@ def main():
     ap.add_argument('saida', nargs='?')
     ap.add_argument('--offset', type=int, default=0)
     ap.add_argument('--so-verificar', action='store_true')
+    ap.add_argument('--legenda', action='store_true',
+                    help='acrescenta ao final do PDF uma pagina com o significado das cores')
     a = ap.parse_args()
     if not a.so_verificar and not a.saida:
         ap.error('informe o PDF de saida ou use --so-verificar')
@@ -103,6 +157,13 @@ def main():
         sys.exit(1)
     if a.so_verificar:
         print('verificacao concluida; nada gravado'); return
+    if a.legenda:
+        try:
+            from collections import Counter
+            w.append(pagina_legenda(Counter(r['cor'] for r in reg)))
+            print('pagina de legenda acrescentada ao final')
+        except ImportError:
+            print('AVISO: reportlab ausente; legenda nao acrescentada (pip install reportlab)')
     w.write(a.saida)
     print('gravado', a.saida)
 
