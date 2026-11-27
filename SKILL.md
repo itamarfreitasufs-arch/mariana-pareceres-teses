@@ -26,10 +26,10 @@ Ausências (por exemplo, "a Introdução não formula pergunta") não têm trech
    - laranja = P2, inconsistência analítica; amarelo = P2, afirmação sem sustentação suficiente;
    - azul = P3, revisão editorial.
    O `snippet` (o que será destacado) deve estar em **uma só linha** do PDF, aparecer **uma só vez** na página e ser **subcadeia literal do `excerto`**. Se a frase quebra de linha, use um pedaço de uma linha; quebras e hifenizações são a causa mais comum de falha na verificação. Numere os IDs pela ordem de página (M-001 ao fim) depois de fechar o registro, não durante a leitura.
-4. **Verificação obrigatória.** Rode `python3 scripts/anotar_e_verificar.py tese.pdf registro.json tese_marcada.pdf --offset N` (N = impressa − PDF). O script falha, e não grava o PDF, se algum trecho ou snippet não existir na página. Corrija o registro e rode de novo até passar. Se o ambiente não executar código, diga ao usuário que a verificação mecânica não foi feita e entregue o parecer sem a cópia marcada. Use `--so-verificar` para testar o registro sem gravar o PDF. Se uma página não tiver camada de texto (digitalização), o script acusa erro: declare que a marcação automática não é possível e entregue só o índice de marcas.
+4. **Verificação obrigatória.** Rode `python3 scripts/anotar_e_verificar.py tese.pdf registro.json tese_marcada.pdf --offset N --legenda` (N = impressa − PDF). O script falha, e não grava o PDF, se algum trecho ou snippet não existir na página. Corrija o registro e rode de novo até passar. Se o ambiente não executar código, diga ao usuário que a verificação mecânica não foi feita e entregue o parecer sem a cópia marcada. Use `--so-verificar` para testar o registro sem gravar o PDF. Se uma página não tiver camada de texto (digitalização), o script acusa erro: declare que a marcação automática não é possível e entregue só o índice de marcas.
 5. **Parecer.** Escreva o parecer na estrutura do §13 do protocolo, usando o registro como fonte (cada item com página, trecho e código M-xxx). Inclua as duas matrizes (da pergunta para a resposta e das conclusões de volta à base), a auditoria de referências, o plano de revisão por prioridade e a decisão. Inclua um índice de marcas (ID, cor, prioridade, página, trecho destacado).
 6. **Conferência final.** Releia o parecer contra o texto da tese: aspas literais, cifras e páginas conferidas, e cada aspa em tabela ou resumo também. Não classifique como "contradição" duas afirmações que falam de escopos diferentes; chame de tensão e explique os escopos.
-7. **Entrega.** Entregue o parecer (documento), a tese marcada (PDF) e o índice completo de marcas (CSV ou tabela). Nunca edite o arquivo original: trabalhe sobre cópia. No final, diga em uma linha o que **não** foi lido ou verificado.
+7. **Entrega.** Entregue o parecer (documento), a tese marcada (PDF) e o índice completo de marcas (CSV ou tabela). As três entregas trazem a legenda das cores: tabela no cabeçalho do parecer, página final no PDF (rode o script com `--legenda`) e coluna "Significado da cor" no índice. Nunca edite o arquivo original: trabalhe sobre cópia. No final, diga em uma linha o que **não** foi lido ou verificado.
 
 ## Limites que o parecer deve declarar
 
@@ -40,7 +40,7 @@ Ausências (por exemplo, "a Introdução não formula pergunta") não têm trech
 
 ## Cabeçalho do parecer
 
-Topo do parecer: tese (autor, programa, instituição, ano, número de páginas), instrumento (esta skill, versão do protocolo), parâmetros adotados e quais foram assumidos por padrão, e a cópia anotada com o total de marcas por cor.
+Topo do parecer: tese (autor, programa, instituição, ano, número de páginas), instrumento (esta skill, versão do protocolo), parâmetros adotados e quais foram assumidos por padrão, e a cópia anotada com o total de marcas por cor, seguida da **legenda das cores** (tabela: cor, significado, prioridade), conforme a regra 9 da seção 18 do protocolo.
 
 ## Idioma e tom
 
